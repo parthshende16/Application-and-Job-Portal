@@ -7,6 +7,7 @@ const navItems = [
   { href: '/dashboard', icon: '⚡', label: 'Dashboard' },
   { href: '/tracker', icon: '📊', label: 'Job Tracker' },
   { href: '/interview', icon: '🎤', label: 'AI Interview' },
+  { href: '/video-interview', icon: '🎥', label: 'Video Interview' },
   { href: '/company', icon: '🏢', label: 'Company Prep' },
   { href: '/coding', icon: '💻', label: 'Coding IDE' },
   { href: '/mock', icon: '🤝', label: 'Peer Mock' },
