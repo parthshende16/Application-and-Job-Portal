@@ -217,6 +217,15 @@ export default function VideoInterviewPage() {
   const [camError, setCamError] = useState('');
   const [showEndModal, setShowEndModal] = useState(false);
   const [setupPreviewReady, setSetupPreviewReady] = useState(false);
+  const [isSecure, setIsSecure] = useState(true); // assume secure until client check
+
+  // Check for secure context on mount — camera/mic/speech require HTTPS or localhost
+  useEffect(() => {
+    setIsSecure(
+      typeof window !== 'undefined' &&
+      (window.isSecureContext === true)
+    );
+  }, []);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   // Separate ref for the setup preview video
@@ -492,6 +501,80 @@ export default function VideoInterviewPage() {
   // ─────────────────────────────────────────────────────────────────────────────
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────────
+
+  // INSECURE CONTEXT WARNING — shown when accessed via http://192.168.x.x etc.
+  // Camera, mic & speech APIs require HTTPS or localhost.
+  if (!isSecure) {
+    return (
+      <div style={{
+        minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '32px',
+      }}>
+        <div style={{ maxWidth: '560px', width: '100%', animation: 'fadeInUp 0.4s ease' }}>
+          <div style={{
+            background: 'var(--bg-card)',
+            border: '1px solid rgba(245,158,11,0.35)',
+            borderRadius: '18px', padding: '36px', textAlign: 'center',
+          }}>
+            <div style={{ fontSize: '56px', marginBottom: '20px' }}>🔒</div>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '10px' }}>
+              HTTPS Required
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', lineHeight: 1.7, marginBottom: '24px' }}>
+              The Video Interview uses your <strong>camera</strong>, <strong>microphone</strong>, and <strong>speech recognition</strong>.
+              Browsers only allow these features on a <strong>secure (HTTPS)</strong> connection or <code style={{ background: 'rgba(255,255,255,0.07)', padding: '1px 6px', borderRadius: '4px' }}>localhost</code>.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '28px', textAlign: 'left' }}>
+              <div style={{
+                padding: '16px 18px', borderRadius: '12px',
+                background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)',
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: '#6ee7b7', marginBottom: '6px' }}>
+                  ✅ Option 1 — Use localhost (recommended)
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                  Open the app on the <strong>same machine</strong> running the dev server:{' '}
+                  <a
+                    href={typeof window !== 'undefined' ? window.location.href.replace(window.location.hostname, 'localhost') : '#'}
+                    style={{ color: '#67e8f9', textDecoration: 'underline', wordBreak: 'break-all' }}
+                  >
+                    {typeof window !== 'undefined' ? window.location.href.replace(window.location.hostname, 'localhost') : 'localhost:3000'}
+                  </a>
+                </div>
+              </div>
+
+              <div style={{
+                padding: '16px 18px', borderRadius: '12px',
+                background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.25)',
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: '#a78bfa', marginBottom: '6px' }}>
+                  ✅ Option 2 — Run with HTTPS (for network access)
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                  Stop the dev server and restart with:
+                  <div style={{
+                    marginTop: '8px', padding: '8px 12px',
+                    background: 'rgba(0,0,0,0.4)', borderRadius: '8px',
+                    fontFamily: 'monospace', fontSize: '13px', color: '#e2e8f0',
+                    userSelect: 'all',
+                  }}>
+                    npm run dev:https
+                  </div>
+                  Then access the network link shown in the terminal.
+                </div>
+              </div>
+            </div>
+
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              All other modules (Dashboard, Job Tracker, Coding IDE, etc.) work fine on any connection.
+              Only the Video Interview requires HTTPS.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // LOBBY
   if (phase === 'lobby') {
